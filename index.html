@@ -5,17 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mis Tutorías</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg:#ffffff;--bg2:#f5f5f4;--bg3:#ece9e3;--text:#1a1a1a;--text2:#6b7280;--text3:#9ca3af;
+  :root{--bg:#ffffff;--bg2:#f5f5f4;--bg3:#ece9e3;--text:#1a1a1a;--text2:#6b7280;--text3:#9ca3af;
     --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.25);
-    --blue:#185FA5;--green:#1D9E75;--amber:#BA7517;--red:#A32D2D;
-    --radius:8px;--radius-lg:12px;
-  }
-  @media(prefers-color-scheme:dark){
-    :root{--bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;--text:#f2f2f7;--text2:#aeaeb2;--text3:#6d6d72;
-    --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.25);}
-  }
+    --blue:#185FA5;--green:#1D9E75;--amber:#BA7517;--red:#A32D2D;--radius:8px;--radius-lg:12px;}
+  @media(prefers-color-scheme:dark){:root{--bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;--text:#f2f2f7;
+    --text2:#aeaeb2;--text3:#6d6d72;--border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.25);}}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh}
   .container{max-width:720px;margin:0 auto;padding:1rem}
@@ -23,9 +19,7 @@
   .logo-area{display:flex;align-items:center;gap:10px}
   .logo{width:38px;height:38px;background:var(--blue);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0}
   .sync-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
-  .sync-ok{background:#EAF3DE;color:#3B6D11}
-  .sync-wait{background:#FAEEDA;color:#854F0B}
-  .sync-err{background:#FCEBEB;color:#A32D2D}
+  .sync-ok{background:#EAF3DE;color:#3B6D11}.sync-wait{background:#FAEEDA;color:#854F0B}.sync-err{background:#FCEBEB;color:#A32D2D}
   nav{display:flex;gap:2px;border-bottom:0.5px solid var(--border);margin-bottom:1.25rem;flex-wrap:wrap;background:var(--bg);border-radius:var(--radius-lg);padding:0 .5rem}
   .nav-btn{padding:10px 11px;font-size:13px;border:none;background:none;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s}
   .nav-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
@@ -96,12 +90,16 @@
   .legend-dot{width:10px;height:10px;border-radius:2px}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:10px 22px;border-radius:var(--radius);font-size:14px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.15)}
   .toast.show{opacity:1}
-  .loading{display:flex;align-items:center;justify-content:center;padding:3rem;gap:10px;color:var(--text2);font-size:14px}
+  .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .chart-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem}
+  .chart-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:.75rem;text-align:center}
+  .chart-wrap{position:relative;height:200px}
+  .chart-wrap-wide{position:relative;height:220px}
   @media(max-width:500px){
     .metric-grid{grid-template-columns:1fr 1fr}
-    .form-grid{grid-template-columns:1fr}
-    .ff.full{grid-column:1}
+    .form-grid{grid-template-columns:1fr}.ff.full{grid-column:1}
     .nav-btn{padding:8px 8px;font-size:12px}
+    .charts-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -127,6 +125,7 @@
     <button class="nav-btn" onclick="showTab('reportes',this)"><i class="ti ti-chart-bar"></i> Reportes</button>
   </nav>
 
+  <!-- INICIO -->
   <div id="tab-inicio" class="sec active">
     <div class="metric-grid" id="metrics"></div>
     <div class="card">
@@ -139,6 +138,7 @@
     </div>
   </div>
 
+  <!-- NUEVA -->
   <div id="tab-nueva" class="sec">
     <div class="card">
       <div class="card-header"><span class="card-title" id="form-titulo">Registrar nueva clase</span></div>
@@ -167,6 +167,7 @@
     </div>
   </div>
 
+  <!-- CLASES -->
   <div id="tab-clases" class="sec">
     <div class="filter-row">
       <input type="text" id="filtro-alumno" placeholder="Alumno..." oninput="renderClases()" style="width:110px">
@@ -185,6 +186,7 @@
     <div class="card" style="padding:0;overflow:hidden"><div id="tabla-clases"></div></div>
   </div>
 
+  <!-- CALENDARIO -->
   <div id="tab-calendario" class="sec">
     <div class="card">
       <div class="card-header">
@@ -207,6 +209,7 @@
     </div>
   </div>
 
+  <!-- HISTORIAL -->
   <div id="tab-historial" class="sec">
     <div class="htab">
       <button class="htab-btn active" onclick="showHtab('alumnos',this)"><i class="ti ti-user"></i> Por alumno</button>
@@ -218,6 +221,7 @@
     <div id="htab-lugares" style="display:none"></div>
   </div>
 
+  <!-- REPORTES -->
   <div id="tab-reportes" class="sec">
     <div class="filter-row">
       <label style="font-size:12px;color:var(--text2)">Desde:</label>
@@ -228,6 +232,29 @@
       <button class="btn btn-sm" onclick="setAnioActual()">Este año</button>
     </div>
     <div class="metric-grid" id="r-metrics"></div>
+
+    <!-- GRÁFICAS -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-chart-pie"></i> Clases por materia</div>
+        <div class="chart-wrap"><canvas id="chart-materia-pie"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="ti ti-chart-pie"></i> Clases por lugar</div>
+        <div class="chart-wrap"><canvas id="chart-lugar-pie"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:.875rem"><i class="ti ti-chart-bar"></i> Ingresos por alumno</div>
+      <div class="chart-wrap-wide"><canvas id="chart-alumno-bar"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="margin-bottom:.875rem"><i class="ti ti-chart-line"></i> Ingresos por mes</div>
+      <div class="chart-wrap-wide"><canvas id="chart-mes-line"></canvas></div>
+    </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
       <div class="card" style="margin:0">
         <div class="card-header" style="margin-bottom:8px"><span class="card-title">Por materia</span></div>
@@ -259,158 +286,178 @@ const firebaseConfig = {
   appId: "1:347623354541:web:0ea282703ef2b446e91624"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
 const colRef = collection(db, "clases");
 
 let clases = [];
 let editId = null;
 let calFecha = new Date();
 let calVistaActual = 'mes';
+let chartInstances = {};
 
-const MB = { Física:'badge-blue', Química:'badge-purple', Geometría:'badge-teal', Trigonometría:'badge-coral', Matemáticas:'badge-amber', Otro:'badge-gray' };
-const LB = { Casa:'lugar-casa', Escuela:'lugar-escuela', Otro:'badge-gray' };
+const MB = {Física:'badge-blue',Química:'badge-purple',Geometría:'badge-teal',Trigonometría:'badge-coral',Matemáticas:'badge-amber',Otro:'badge-gray'};
+const LB = {Casa:'lugar-casa',Escuela:'lugar-escuela',Otro:'badge-gray'};
 const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CHART_COLORS = ['#185FA5','#1D9E75','#BA7517','#7C3ABE','#085041','#712B13','#A32D2D','#0C447C'];
+const CHART_COLORS_ALPHA = CHART_COLORS.map(c => c + 'CC');
 
-function setSyncBadge(state) {
-  const b = document.getElementById('sync-badge');
-  if (state === 'ok') { b.className = 'sync-badge sync-ok'; b.innerHTML = '<i class="ti ti-cloud-check"></i> Sincronizado'; }
-  else if (state === 'wait') { b.className = 'sync-badge sync-wait'; b.innerHTML = '<i class="ti ti-cloud"></i> Conectando...'; }
-  else { b.className = 'sync-badge sync-err'; b.innerHTML = '<i class="ti ti-cloud-off"></i> Sin conexión'; }
+function setSyncBadge(state){
+  const b=document.getElementById('sync-badge');
+  if(state==='ok'){b.className='sync-badge sync-ok';b.innerHTML='<i class="ti ti-cloud-check"></i> Sincronizado';}
+  else if(state==='wait'){b.className='sync-badge sync-wait';b.innerHTML='<i class="ti ti-cloud"></i> Conectando...';}
+  else{b.className='sync-badge sync-err';b.innerHTML='<i class="ti ti-cloud-off"></i> Sin conexión';}
 }
 
-// Escucha cambios en tiempo real desde Firestore
-const q = query(colRef, orderBy("fecha", "desc"));
+const q = query(colRef, orderBy("fecha","desc"));
 onSnapshot(q, (snapshot) => {
-  clases = snapshot.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+  clases = snapshot.docs.map(d => ({firestoreId:d.id,...d.data()}));
   setSyncBadge('ok');
   renderInicio();
   const activeTab = document.querySelector('.sec.active')?.id?.replace('tab-','');
-  if (activeTab === 'clases') renderClases();
-  if (activeTab === 'calendario') renderCal();
-  if (activeTab === 'historial') renderHistorial();
-  if (activeTab === 'reportes') renderReportes();
-}, (error) => {
-  setSyncBadge('err');
-  console.error(error);
-});
+  if(activeTab==='clases') renderClases();
+  if(activeTab==='calendario') renderCal();
+  if(activeTab==='historial') renderHistorial();
+  if(activeTab==='reportes') renderReportes();
+}, (error) => { setSyncBadge('err'); console.error(error); });
 
-window.showTab = function(tab, btn) {
-  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  if (btn) btn.classList.add('active');
-  if (tab === 'inicio') renderInicio();
-  if (tab === 'clases') renderClases();
-  if (tab === 'calendario') renderCal();
-  if (tab === 'historial') renderHistorial();
-  if (tab === 'reportes') { setMesActual(); renderReportes(); }
+function destroyChart(id){
+  if(chartInstances[id]){ chartInstances[id].destroy(); delete chartInstances[id]; }
 }
 
-window.showHtab = function(sub, btn) {
-  ['alumnos','materias','lugares'].forEach(t => document.getElementById('htab-'+t).style.display='none');
-  document.querySelectorAll('.htab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('htab-'+sub).style.display = 'block';
+function makeChart(id, type, labels, datasets, options){
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if(!ctx) return;
+  chartInstances[id] = new Chart(ctx, {
+    type,
+    data: {labels, datasets},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#1a1a1a', font:{size:11} } }
+      },
+      ...options
+    }
+  });
+}
+
+window.showTab = function(tab,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(tab==='inicio') renderInicio();
+  if(tab==='clases') renderClases();
+  if(tab==='calendario') renderCal();
+  if(tab==='historial') renderHistorial();
+  if(tab==='reportes'){setMesActual();renderReportes();}
+}
+
+window.showHtab = function(sub,btn){
+  ['alumnos','materias','lugares'].forEach(t=>document.getElementById('htab-'+t).style.display='none');
+  document.querySelectorAll('.htab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('htab-'+sub).style.display='block';
   btn.classList.add('active');
   renderHistorialSub(sub);
 }
 
-function toast(msg, color) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.background = color || '#1D9E75';
-  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500);
+function toast(msg,color){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=color||'#1D9E75';
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function fmtF(f) { if (!f) return ''; const [y,m,d] = f.split('-'); return d+'/'+m+'/'+y; }
+function fmtF(f){if(!f)return'';const[y,m,d]=f.split('-');return d+'/'+m+'/'+y;}
 
-window.guardarClase = async function() {
-  const alumno = document.getElementById('f-alumno').value.trim();
-  const fecha = document.getElementById('f-fecha').value;
-  const hora = document.getElementById('f-hora').value;
-  const materia = document.getElementById('f-materia').value;
-  const lugar = document.getElementById('f-lugar').value;
-  const dur = parseFloat(document.getElementById('f-duracion').value);
-  const tar = parseFloat(document.getElementById('f-tarifa').value);
-  const nota = document.getElementById('f-nota').value.trim();
-  if (!alumno || !fecha) { toast('Completa alumno y fecha', '#A32D2D'); return; }
-  const total = Math.round(dur * tar * 100) / 100;
-  const btn = document.getElementById('btn-guardar');
-  btn.disabled = true;
-  try {
-    if (editId) {
-      const c = clases.find(x => x.firestoreId === editId);
-      if (c) await updateDoc(doc(db, 'clases', editId), {alumno,fecha,hora,materia,lugar,duracion:dur,tarifa:tar,total,nota});
+window.guardarClase = async function(){
+  const alumno=document.getElementById('f-alumno').value.trim();
+  const fecha=document.getElementById('f-fecha').value;
+  const hora=document.getElementById('f-hora').value;
+  const materia=document.getElementById('f-materia').value;
+  const lugar=document.getElementById('f-lugar').value;
+  const dur=parseFloat(document.getElementById('f-duracion').value);
+  const tar=parseFloat(document.getElementById('f-tarifa').value);
+  const nota=document.getElementById('f-nota').value.trim();
+  if(!alumno||!fecha){toast('Completa alumno y fecha','#A32D2D');return;}
+  const total=Math.round(dur*tar*100)/100;
+  const btn=document.getElementById('btn-guardar');
+  btn.disabled=true;
+  try{
+    if(editId){
+      await updateDoc(doc(db,'clases',editId),{alumno,fecha,hora,materia,lugar,duracion:dur,tarifa:tar,total,nota});
       cancelarEdicion(); toast('Clase actualizada ✓');
     } else {
-      await addDoc(colRef, {alumno,fecha,hora,materia,lugar,duracion:dur,tarifa:tar,total,nota,estado:'pendiente'});
-      document.getElementById('f-alumno').value = '';
-      document.getElementById('f-nota').value = '';
+      await addDoc(colRef,{alumno,fecha,hora,materia,lugar,duracion:dur,tarifa:tar,total,nota,estado:'pendiente'});
+      document.getElementById('f-alumno').value='';
+      document.getElementById('f-nota').value='';
       toast('Clase registrada ✓');
     }
-  } catch(e) { toast('Error al guardar', '#A32D2D'); console.error(e); }
-  btn.disabled = false;
+  }catch(e){toast('Error al guardar','#A32D2D');console.error(e);}
+  btn.disabled=false;
 }
 
-window.abrirEdicion = function(fid) {
-  const c = clases.find(x => x.firestoreId === fid); if (!c) return;
-  editId = fid;
-  document.getElementById('f-alumno').value = c.alumno;
-  document.getElementById('f-fecha').value = c.fecha;
-  document.getElementById('f-hora').value = c.hora || '14:00';
-  document.getElementById('f-materia').value = c.materia || 'Física';
-  document.getElementById('f-lugar').value = c.lugar || 'Casa';
-  document.getElementById('f-duracion').value = c.duracion || 1;
-  document.getElementById('f-tarifa').value = c.tarifa || 35;
-  document.getElementById('f-nota').value = c.nota || '';
-  document.getElementById('form-titulo').textContent = 'Editar clase';
-  document.getElementById('btn-guardar-txt').textContent = 'Guardar cambios';
-  document.getElementById('btn-cancelar-edit').style.display = 'inline-block';
-  window.showTab('nueva', document.querySelectorAll('.nav-btn')[1]);
+window.abrirEdicion = function(fid){
+  const c=clases.find(x=>x.firestoreId===fid); if(!c) return;
+  editId=fid;
+  document.getElementById('f-alumno').value=c.alumno;
+  document.getElementById('f-fecha').value=c.fecha;
+  document.getElementById('f-hora').value=c.hora||'14:00';
+  document.getElementById('f-materia').value=c.materia||'Física';
+  document.getElementById('f-lugar').value=c.lugar||'Casa';
+  document.getElementById('f-duracion').value=c.duracion||1;
+  document.getElementById('f-tarifa').value=c.tarifa||35;
+  document.getElementById('f-nota').value=c.nota||'';
+  document.getElementById('form-titulo').textContent='Editar clase';
+  document.getElementById('btn-guardar-txt').textContent='Guardar cambios';
+  document.getElementById('btn-cancelar-edit').style.display='inline-block';
+  window.showTab('nueva',document.querySelectorAll('.nav-btn')[1]);
 }
 
-window.cancelarEdicion = function() {
-  editId = null;
-  document.getElementById('f-alumno').value = '';
-  document.getElementById('f-nota').value = '';
-  document.getElementById('form-titulo').textContent = 'Registrar nueva clase';
-  document.getElementById('btn-guardar-txt').textContent = 'Guardar clase';
-  document.getElementById('btn-cancelar-edit').style.display = 'none';
+window.cancelarEdicion = function(){
+  editId=null;
+  document.getElementById('f-alumno').value='';
+  document.getElementById('f-nota').value='';
+  document.getElementById('form-titulo').textContent='Registrar nueva clase';
+  document.getElementById('btn-guardar-txt').textContent='Guardar clase';
+  document.getElementById('btn-cancelar-edit').style.display='none';
 }
 
-window.limpiarFiltros = function() {
-  ['filtro-alumno','filtro-materia','filtro-lugar','filtro-estado'].forEach(id => document.getElementById(id).value = '');
+window.limpiarFiltros = function(){
+  ['filtro-alumno','filtro-materia','filtro-lugar','filtro-estado'].forEach(id=>document.getElementById(id).value='');
   renderClases();
 }
 
-window.toggleEstado = async function(fid) {
-  const c = clases.find(x => x.firestoreId === fid); if (!c) return;
-  await updateDoc(doc(db, 'clases', fid), { estado: c.estado === 'pagado' ? 'pendiente' : 'pagado' });
+window.toggleEstado = async function(fid){
+  const c=clases.find(x=>x.firestoreId===fid); if(!c) return;
+  await updateDoc(doc(db,'clases',fid),{estado:c.estado==='pagado'?'pendiente':'pagado'});
 }
 
-window.eliminarClase = async function(fid) {
-  if (!confirm('¿Eliminar esta clase?')) return;
-  await deleteDoc(doc(db, 'clases', fid));
-  toast('Clase eliminada', '#A32D2D');
+window.eliminarClase = async function(fid){
+  if(!confirm('¿Eliminar esta clase?')) return;
+  await deleteDoc(doc(db,'clases',fid));
+  toast('Clase eliminada','#A32D2D');
 }
 
-window.marcarPagado = async function(fid) {
-  await updateDoc(doc(db, 'clases', fid), { estado: 'pagado' });
+window.marcarPagado = async function(fid){
+  await updateDoc(doc(db,'clases',fid),{estado:'pagado'});
   toast('Marcado como cobrado ✓');
 }
 
-function renderInicio() {
-  const hoy = new Date().toISOString().split('T')[0];
-  const mes = hoy.slice(0, 7);
-  const esMes = clases.filter(c => c.fecha && c.fecha.startsWith(mes));
-  const cobrado = esMes.filter(c => c.estado==='pagado').reduce((a,c) => a+c.total, 0);
-  const pend = clases.filter(c => c.estado==='pendiente').reduce((a,c) => a+c.total, 0);
-  document.getElementById('metrics').innerHTML = `
+function renderInicio(){
+  const hoy=new Date().toISOString().split('T')[0];
+  const mes=hoy.slice(0,7);
+  const esMes=clases.filter(c=>c.fecha&&c.fecha.startsWith(mes));
+  const cobrado=esMes.filter(c=>c.estado==='pagado').reduce((a,c)=>a+c.total,0);
+  const pend=clases.filter(c=>c.estado==='pendiente').reduce((a,c)=>a+c.total,0);
+  document.getElementById('metrics').innerHTML=`
     <div class="metric"><div class="metric-label">Clases este mes</div><div class="metric-value mv-blue">${esMes.length}</div></div>
     <div class="metric"><div class="metric-label">Cobrado este mes</div><div class="metric-value mv-green">$${cobrado.toFixed(2)}</div></div>
     <div class="metric"><div class="metric-label">Por cobrar</div><div class="metric-value mv-amber">$${pend.toFixed(2)}</div></div>`;
-  const prox = clases.filter(c => c.fecha >= hoy).sort((a,b) => (a.fecha+a.hora).localeCompare(b.fecha+b.hora)).slice(0,5);
-  document.getElementById('proximas').innerHTML = prox.length ? prox.map(c => `
+  const prox=clases.filter(c=>c.fecha>=hoy).sort((a,b)=>(a.fecha+a.hora).localeCompare(b.fecha+b.hora)).slice(0,5);
+  document.getElementById('proximas').innerHTML=prox.length?prox.map(c=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid var(--border)">
       <div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
@@ -421,9 +468,9 @@ function renderInicio() {
         <div style="font-size:12px;color:var(--text2)">${fmtF(c.fecha)} · ${c.hora} · ${c.duracion}h</div>
       </div>
       <div style="font-size:15px;font-weight:600">$${c.total.toFixed(2)}</div>
-    </div>`).join('') : '<div class="empty">No hay clases próximas</div>';
-  const pl = clases.filter(c => c.estado==='pendiente').sort((a,b) => a.fecha.localeCompare(b.fecha)).slice(0,6);
-  document.getElementById('pendientes-lista').innerHTML = pl.length ? pl.map(c => `
+    </div>`).join(''):'<div class="empty">No hay clases próximas</div>';
+  const pl=clases.filter(c=>c.estado==='pendiente').sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,6);
+  document.getElementById('pendientes-lista').innerHTML=pl.length?pl.map(c=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid var(--border)">
       <div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
@@ -436,24 +483,22 @@ function renderInicio() {
         <span style="font-size:15px;font-weight:600;color:var(--amber)">$${c.total.toFixed(2)}</span>
         <button class="btn btn-sm btn-primary" onclick="marcarPagado('${c.firestoreId}')">Cobrado</button>
       </div>
-    </div>`).join('') : '<div class="empty" style="padding:1.25rem">Sin pendientes 🎉</div>';
+    </div>`).join(''):'<div class="empty" style="padding:1.25rem">Sin pendientes 🎉</div>';
 }
 
-function renderClases() {
-  const fa = document.getElementById('filtro-alumno')?.value?.toLowerCase()||'';
-  const fm = document.getElementById('filtro-materia')?.value||'';
-  const fl = document.getElementById('filtro-lugar')?.value||'';
-  const fe = document.getElementById('filtro-estado')?.value||'';
-  let lista = clases.filter(c =>
-    (!fa||c.alumno.toLowerCase().includes(fa))&&(!fm||c.materia===fm)&&(!fl||c.lugar===fl)&&(!fe||c.estado===fe)
-  ).sort((a,b) => b.fecha.localeCompare(a.fecha));
-  const total = lista.reduce((a,c) => a+c.total, 0);
-  document.getElementById('filtro-resumen').textContent = lista.length ? `${lista.length} clase(s) · $${total.toFixed(2)}` : '';
-  const wrap = document.getElementById('tabla-clases');
-  if (!lista.length) { wrap.innerHTML = '<div class="empty" style="padding:2rem">No hay clases con esos filtros</div>'; return; }
-  wrap.innerHTML = `<table>
+function renderClases(){
+  const fa=document.getElementById('filtro-alumno')?.value?.toLowerCase()||'';
+  const fm=document.getElementById('filtro-materia')?.value||'';
+  const fl=document.getElementById('filtro-lugar')?.value||'';
+  const fe=document.getElementById('filtro-estado')?.value||'';
+  let lista=clases.filter(c=>(!fa||c.alumno.toLowerCase().includes(fa))&&(!fm||c.materia===fm)&&(!fl||c.lugar===fl)&&(!fe||c.estado===fe)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const total=lista.reduce((a,c)=>a+c.total,0);
+  document.getElementById('filtro-resumen').textContent=lista.length?`${lista.length} clase(s) · $${total.toFixed(2)}`:'';
+  const wrap=document.getElementById('tabla-clases');
+  if(!lista.length){wrap.innerHTML='<div class="empty" style="padding:2rem">No hay clases con esos filtros</div>';return;}
+  wrap.innerHTML=`<table>
     <thead><tr><th style="width:22%">Alumno</th><th style="width:15%">Materia</th><th style="width:12%">Lugar</th><th style="width:18%">Fecha</th><th style="width:11%">Total</th><th style="width:12%">Estado</th><th style="width:10%"></th></tr></thead>
-    <tbody>${lista.map(c => `<tr>
+    <tbody>${lista.map(c=>`<tr>
       <td><div style="font-weight:600;font-size:13px">${c.alumno}</div>${c.nota?`<div style="font-size:11px;color:var(--text2)">${c.nota}</div>`:''}</td>
       <td><span class="badge ${MB[c.materia]||'badge-gray'}">${c.materia||'-'}</span></td>
       <td><span class="pill-lugar ${LB[c.lugar]||'badge-gray'}">${c.lugar||'-'}</span></td>
@@ -467,20 +512,20 @@ function renderClases() {
     </tr>`).join('')}</tbody></table>`;
 }
 
-function renderHistorial() { renderHistorialSub('alumnos'); }
+function renderHistorial(){ renderHistorialSub('alumnos'); }
 
-function renderHistorialSub(tipo) {
-  const contenedor = document.getElementById('htab-'+tipo);
-  let grupos = {};
-  clases.forEach(c => {
-    const key = tipo==='alumnos'?c.alumno:tipo==='materias'?(c.materia||'Otro'):(c.lugar||'Otro');
-    if (!grupos[key]) grupos[key] = {clases:[],total:0,cobrado:0,horas:0};
-    grupos[key].clases.push(c); grupos[key].total+=c.total; grupos[key].horas+=c.duracion;
-    if (c.estado==='pagado') grupos[key].cobrado+=c.total;
+function renderHistorialSub(tipo){
+  const contenedor=document.getElementById('htab-'+tipo);
+  let grupos={};
+  clases.forEach(c=>{
+    const key=tipo==='alumnos'?c.alumno:tipo==='materias'?(c.materia||'Otro'):(c.lugar||'Otro');
+    if(!grupos[key])grupos[key]={clases:[],total:0,cobrado:0,horas:0};
+    grupos[key].clases.push(c);grupos[key].total+=c.total;grupos[key].horas+=c.duracion;
+    if(c.estado==='pagado')grupos[key].cobrado+=c.total;
   });
-  const items = Object.entries(grupos).sort((a,b)=>b[1].total-a[1].total);
-  if (!items.length) { contenedor.innerHTML='<div class="empty">No hay clases registradas aún</div>'; return; }
-  contenedor.innerHTML = items.map(([key,d]) => `
+  const items=Object.entries(grupos).sort((a,b)=>b[1].total-a[1].total);
+  if(!items.length){contenedor.innerHTML='<div class="empty">No hay clases registradas aún</div>';return;}
+  contenedor.innerHTML=items.map(([key,d])=>`
     <div class="hcard" id="hcard-${tipo}-${encodeURIComponent(key)}" onclick="toggleDetalle('${tipo}','${key.replace(/'/g,"\\'").replace(/\\/g,"\\\\")}')">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div style="display:flex;align-items:center;gap:10px">
@@ -502,21 +547,21 @@ function renderHistorialSub(tipo) {
   `).join('');
 }
 
-window.toggleDetalle = function(tipo, key) {
-  const ek = encodeURIComponent(key);
-  const card = document.getElementById(`hcard-${tipo}-${ek}`);
-  const panel = document.getElementById(`hdetalle-${tipo}-${ek}`);
-  const abierto = panel.style.display==='block';
+window.toggleDetalle = function(tipo,key){
+  const ek=encodeURIComponent(key);
+  const card=document.getElementById(`hcard-${tipo}-${ek}`);
+  const panel=document.getElementById(`hdetalle-${tipo}-${ek}`);
+  const abierto=panel.style.display==='block';
   document.querySelectorAll('.hcard').forEach(c=>c.classList.remove('selected'));
   document.querySelectorAll('[id^="hdetalle-"]').forEach(p=>p.style.display='none');
-  if (!abierto) { card.classList.add('selected'); panel.style.display='block'; panel.innerHTML=renderDetalle(tipo,key); }
+  if(!abierto){card.classList.add('selected');panel.style.display='block';panel.innerHTML=renderDetalle(tipo,key);}
 }
 
-function renderDetalle(tipo, key) {
-  const sub = clases.filter(c => {
-    if (tipo==='alumnos') return c.alumno===key;
-    if (tipo==='materias') return (c.materia||'Otro')===key;
-    return (c.lugar||'Otro')===key;
+function renderDetalle(tipo,key){
+  const sub=clases.filter(c=>{
+    if(tipo==='alumnos')return c.alumno===key;
+    if(tipo==='materias')return(c.materia||'Otro')===key;
+    return(c.lugar||'Otro')===key;
   }).sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const total=sub.reduce((a,c)=>a+c.total,0);
   const cobrado=sub.filter(c=>c.estado==='pagado').reduce((a,c)=>a+c.total,0);
@@ -525,7 +570,6 @@ function renderDetalle(tipo, key) {
   const materias=[...new Set(sub.map(c=>c.materia||'Otro'))];
   const lugares=[...new Set(sub.map(c=>c.lugar||'Otro'))];
   const alumnos=[...new Set(sub.map(c=>c.alumno))];
-  const ek=encodeURIComponent(key);
   return `<div class="detail-panel">
     <div class="stat-row">
       <div class="stat-chip"><span class="stat-chip-val mv-blue">${sub.length}</span>Clases</div>
@@ -555,32 +599,32 @@ function renderDetalle(tipo, key) {
   </div>`;
 }
 
-window.calVista = function(v) {
+window.calVista=function(v){
   calVistaActual=v;
   document.getElementById('btn-mes').style.cssText=v==='mes'?'border-color:var(--blue);color:var(--blue)':'';
   document.getElementById('btn-semana').style.cssText=v==='semana'?'border-color:var(--blue);color:var(--blue)':'';
   renderCal();
 }
-window.calPrev = function() {
-  if (calVistaActual==='mes') calFecha=new Date(calFecha.getFullYear(),calFecha.getMonth()-1,1);
+window.calPrev=function(){
+  if(calVistaActual==='mes')calFecha=new Date(calFecha.getFullYear(),calFecha.getMonth()-1,1);
   else calFecha=new Date(calFecha.getTime()-7*86400000);
   renderCal();
 }
-window.calNext = function() {
-  if (calVistaActual==='mes') calFecha=new Date(calFecha.getFullYear(),calFecha.getMonth()+1,1);
+window.calNext=function(){
+  if(calVistaActual==='mes')calFecha=new Date(calFecha.getFullYear(),calFecha.getMonth()+1,1);
   else calFecha=new Date(calFecha.getTime()+7*86400000);
   renderCal();
 }
-function renderCal() { if (calVistaActual==='mes') renderCalMes(); else renderCalSemana(); }
+function renderCal(){if(calVistaActual==='mes')renderCalMes();else renderCalSemana();}
 
-function renderCalMes() {
+function renderCalMes(){
   const y=calFecha.getFullYear(),m=calFecha.getMonth();
   document.getElementById('cal-titulo').textContent=MESES[m]+' '+y;
   const hoyStr=new Date().toISOString().split('T')[0];
   const primerDia=new Date(y,m,1).getDay();
   const diasMes=new Date(y,m+1,0).getDate();
   let html=DIAS.map(d=>`<div class="cal-day-hdr">${d}</div>`).join('');
-  for(let i=0;i<primerDia;i++) html+=`<div class="cal-day empty-day"></div>`;
+  for(let i=0;i<primerDia;i++)html+=`<div class="cal-day empty-day"></div>`;
   for(let d=1;d<=diasMes;d++){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dc=clases.filter(c=>c.fecha===ds).sort((a,b)=>a.hora.localeCompare(b.hora));
@@ -593,7 +637,7 @@ function renderCalMes() {
   document.getElementById('cal-content').innerHTML=`<div class="cal-grid">${html}</div>`;
 }
 
-window.diaClick = function(ds) {
+window.diaClick=function(ds){
   const dc=clases.filter(c=>c.fecha===ds);
   if(!dc.length){
     document.getElementById('f-fecha').value=ds;
@@ -604,7 +648,7 @@ window.diaClick = function(ds) {
   }
 }
 
-function renderCalSemana() {
+function renderCalSemana(){
   const dow=calFecha.getDay();
   const offsetLunes=dow===0?-6:1-dow;
   const lunes=new Date(calFecha.getTime()+offsetLunes*86400000);
@@ -636,28 +680,28 @@ function renderCalSemana() {
   <div style="font-size:12px;color:var(--text2);margin-top:6px"><i class="ti ti-info-circle"></i> Celda vacía → nueva clase &nbsp;·&nbsp; Bloque → editar</div>`;
 }
 
-window.semCeldaClick = function(ds,h) {
+window.semCeldaClick=function(ds,h){
   document.getElementById('f-fecha').value=ds;
   document.getElementById('f-hora').value=h;
   window.showTab('nueva',document.querySelectorAll('.nav-btn')[1]);
   toast('Fecha y hora cargadas');
 }
 
-window.setMesActual = function() {
+window.setMesActual=function(){
   const hoy=new Date();const y=hoy.getFullYear(),m=String(hoy.getMonth()+1).padStart(2,'0');
   const ult=new Date(y,hoy.getMonth()+1,0).getDate();
   document.getElementById('r-desde').value=`${y}-${m}-01`;
   document.getElementById('r-hasta').value=`${y}-${m}-${String(ult).padStart(2,'0')}`;
   renderReportes();
 }
-window.setAnioActual = function() {
+window.setAnioActual=function(){
   const y=new Date().getFullYear();
   document.getElementById('r-desde').value=`${y}-01-01`;
   document.getElementById('r-hasta').value=`${y}-12-31`;
   renderReportes();
 }
 
-function renderReportes() {
+function renderReportes(){
   const desde=document.getElementById('r-desde').value;
   const hasta=document.getElementById('r-hasta').value;
   const lista=clases.filter(c=>(!desde||c.fecha>=desde)&&(!hasta||c.fecha<=hasta));
@@ -665,6 +709,7 @@ function renderReportes() {
   const pend=lista.filter(c=>c.estado==='pendiente').reduce((a,c)=>a+c.total,0);
   const total=lista.reduce((a,c)=>a+c.total,0);
   const horas=lista.reduce((a,c)=>a+c.duracion,0);
+
   document.getElementById('r-metrics').innerHTML=`
     <div class="metric"><div class="metric-label">Clases</div><div class="metric-value mv-blue">${lista.length}</div></div>
     <div class="metric"><div class="metric-label">Horas</div><div class="metric-value mv-blue">${horas}</div></div>
@@ -672,6 +717,72 @@ function renderReportes() {
     <div class="metric"><div class="metric-label">Cobrado</div><div class="metric-value mv-green">$${cobrado.toFixed(2)}</div></div>
     <div class="metric"><div class="metric-label">Pendiente</div><div class="metric-value mv-amber">$${pend.toFixed(2)}</div></div>
     <div class="metric"><div class="metric-label">$/hora prom.</div><div class="metric-value mv-blue">${horas>0?'$'+(total/horas).toFixed(2):'-'}</div></div>`;
+
+  // --- GRÁFICA PASTEL: clases por materia ---
+  const gMat={};
+  lista.forEach(c=>{const k=c.materia||'Otro';if(!gMat[k])gMat[k]=0;gMat[k]++;});
+  const matLabels=Object.keys(gMat);
+  const matVals=Object.values(gMat);
+  makeChart('chart-materia-pie','doughnut',matLabels,[{
+    data:matVals,
+    backgroundColor:CHART_COLORS.slice(0,matLabels.length),
+    borderWidth:2,
+    borderColor:'transparent'
+  }],{plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}}}});
+
+  // --- GRÁFICA PASTEL: clases por lugar ---
+  const gLug={};
+  lista.forEach(c=>{const k=c.lugar||'Otro';if(!gLug[k])gLug[k]=0;gLug[k]++;});
+  const lugLabels=Object.keys(gLug);
+  const lugVals=Object.values(gLug);
+  makeChart('chart-lugar-pie','doughnut',lugLabels,[{
+    data:lugVals,
+    backgroundColor:['#7C3ABE','#085041','#BA7517'].slice(0,lugLabels.length),
+    borderWidth:2,
+    borderColor:'transparent'
+  }],{plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}}}});
+
+  // --- GRÁFICA BARRAS: ingresos por alumno ---
+  const gAlu={};
+  lista.forEach(c=>{if(!gAlu[c.alumno])gAlu[c.alumno]={total:0,cobrado:0};gAlu[c.alumno].total+=c.total;if(c.estado==='pagado')gAlu[c.alumno].cobrado+=c.total;});
+  const aluEntries=Object.entries(gAlu).sort((a,b)=>b[1].total-a[1].total);
+  const aluLabels=aluEntries.map(([k])=>k);
+  const aluTotal=aluEntries.map(([,v])=>v.total);
+  const aluCobrado=aluEntries.map(([,v])=>v.cobrado);
+  makeChart('chart-alumno-bar','bar',aluLabels,[
+    {label:'Total generado',data:aluTotal,backgroundColor:'#185FA5CC',borderRadius:4},
+    {label:'Cobrado',data:aluCobrado,backgroundColor:'#1D9E75CC',borderRadius:4}
+  ],{
+    plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+    scales:{
+      x:{ticks:{color:'#6b7280',font:{size:10}},grid:{display:false}},
+      y:{ticks:{color:'#6b7280',font:{size:10},callback:v=>'$'+v},grid:{color:'rgba(0,0,0,0.06)'}}
+    }
+  });
+
+  // --- GRÁFICA LÍNEA: ingresos por mes ---
+  const gMes={};
+  lista.forEach(c=>{
+    if(!c.fecha)return;
+    const k=c.fecha.slice(0,7);
+    if(!gMes[k])gMes[k]={total:0,cobrado:0};
+    gMes[k].total+=c.total;
+    if(c.estado==='pagado')gMes[k].cobrado+=c.total;
+  });
+  const mesKeys=Object.keys(gMes).sort();
+  const mesLabels=mesKeys.map(k=>{const[y,m]=k.split('-');return MESES[parseInt(m)-1].slice(0,3)+' '+y;});
+  makeChart('chart-mes-line','line',mesLabels,[
+    {label:'Total generado',data:mesKeys.map(k=>gMes[k].total),borderColor:'#185FA5',backgroundColor:'#185FA522',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:'#185FA5'},
+    {label:'Cobrado',data:mesKeys.map(k=>gMes[k].cobrado),borderColor:'#1D9E75',backgroundColor:'#1D9E7522',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:'#1D9E75'}
+  ],{
+    plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+    scales:{
+      x:{ticks:{color:'#6b7280',font:{size:10}},grid:{display:false}},
+      y:{ticks:{color:'#6b7280',font:{size:10},callback:v=>'$'+v},grid:{color:'rgba(0,0,0,0.06)'}}
+    }
+  });
+
+  // --- TABLAS TEXTO ---
   function grupoBar(campo,badgeFn,color){
     const g={};
     lista.forEach(c=>{const k=c[campo]||'Otro';if(!g[k])g[k]={total:0,n:0};g[k].total+=c.total;g[k].n++;});
@@ -691,7 +802,7 @@ function renderReportes() {
   const pa={};
   lista.forEach(c=>{if(!pa[c.alumno])pa[c.alumno]={total:0,cobrado:0,clases:0,horas:0};pa[c.alumno].total+=c.total;pa[c.alumno].horas+=c.duracion;if(c.estado==='pagado')pa[c.alumno].cobrado+=c.total;pa[c.alumno].clases++;});
   const al=Object.entries(pa).sort((a,b)=>b[1].total-a[1].total);
-  const mx=al.length?Math.max(...al.map(x=>x[1].total)):1;
+  const mxA=al.length?Math.max(...al.map(x=>x[1].total)):1;
   document.getElementById('r-por-alumno').innerHTML=al.length?al.map(([n,d])=>`
     <div style="background:var(--bg2);border-radius:var(--radius);padding:.875rem 1rem;margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:3px"><span>${n}</span><span>$${d.total.toFixed(2)}</span></div>
@@ -699,12 +810,13 @@ function renderReportes() {
         <span>${d.clases} clase(s) · ${d.horas}h</span>
         <span style="color:${d.cobrado<d.total?'var(--amber)':'var(--green)'}">${d.cobrado<d.total?'Pend: $'+(d.total-d.cobrado).toFixed(2):'Todo cobrado'}</span>
       </div>
-      <div class="bar-wrap"><div class="bar" style="width:${Math.round(d.total/mx*100)}%;background:#185FA5"></div></div>
+      <div class="bar-wrap"><div class="bar" style="width:${Math.round(d.total/mxA*100)}%;background:#185FA5"></div></div>
     </div>`).join(''):'<div class="empty">Sin datos en el período</div>';
 }
 
-document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
+document.getElementById('f-fecha').value=new Date().toISOString().split('T')[0];
 setMesActual();
 </script>
 </body>
 </html>
+
